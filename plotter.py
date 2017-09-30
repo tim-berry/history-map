@@ -39,12 +39,7 @@ for vid in vids:
             delta_lon = False
             delta_lat = False
 
-        if (cross_meridian) > 358:
-            map.plot(lon, lat, marker=None,color='deepskyblue',linewidth=0.2)
-            lat = []
-            lon = []
-
-        if (delta_lon > 0.5) or (delta_lat > 0.5):
+        if (cross_meridian) > 358 or (delta_lon > 0.5) or (delta_lat > 0.5):
             map.plot(lon, lat, marker=None,color='deepskyblue',linewidth=0.2)
             lat = []
             lon = []
