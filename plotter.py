@@ -60,7 +60,7 @@ for vid in vids:
         lc = LineCollection(segments, cmap=plt.get_cmap('ocean'),
                             norm=plt.Normalize(-20., 60000.))
         lc.set_array(alt)
-        lc.set_linewidth(0.1)
+        lc.set_linewidth(0.2)
 
         plt.gca().add_collection(lc)
 
