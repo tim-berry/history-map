@@ -23,8 +23,9 @@ def get_sublist(plots):
         while True:
             try:
                 current.append(next(plots))
-                if ((abs(current[-1][0]) - abs(current[-2][0]) > 0.5) or
-                   (abs(current[-1][1]) - abs(current[-2][1]) > 0.5)):
+                if ((abs(abs(current[-1][0]) - abs(current[-2][0])) > 0.5 ) or
+                   ((abs(abs(current[-1][1]) - abs(current[-2][1])) > 0.5 ) or
+                   (abs(current[-1][1]) + abs(current[-2][1]) > 359.))):
                     last = current.pop()
                     yield current.copy()
                     current = [last]
@@ -41,11 +42,8 @@ db.commit()
 
 cursor.execute('SELECT DISTINCT vid FROM plots;')
 vids = [x[0] for x in cursor.fetchall()]
-total_vids = len(vids)
-i = 0
 
 for vid in vids:
-    i += 1
     cursor.execute('SELECT lat, lon, alt FROM plots WHERE vid = ?;', (vid,))
     data = cursor.fetchall()
     data = list(get_sublist(data))
@@ -60,11 +58,9 @@ for vid in vids:
         lc = LineCollection(segments, cmap=plt.get_cmap('ocean'),
                             norm=plt.Normalize(-20., 60000.))
         lc.set_array(alt)
-        lc.set_linewidth(0.2)
+        lc.set_linewidth(1.0)
 
         plt.gca().add_collection(lc)
 
-    print(f'{i}/{total_vids}')
-
-plt.show()
 db.close()
+plt.show()
