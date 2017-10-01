@@ -12,9 +12,10 @@ db = sqlite3.connect(os.path.join(dir_path, 'data.db'))
 cursor = db.cursor()
 
 # Map setup
-map = Basemap(projection='cyl',resolution='c')
-map.drawmapboundary(fill_color='#424242')
-map.fillcontinents(color='#636363')
+map = Basemap(llcrnrlon=-11.5,llcrnrlat=35,urcrnrlon=21.5,urcrnrlat=59.5,projection='cyl',resolution='c')
+map.arcgisimage(service='ESRI_Imagery_World_2D', xpixels = 2000, verbose= True)
+#map.drawmapboundary(fill_color='#424242')
+#map.fillcontinents(color='#636363')
 
 def get_sublist(plots):
     current = []
@@ -55,10 +56,10 @@ for vid in vids:
         points = np.array([lon, lat]).T.reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-        lc = LineCollection(segments, cmap=plt.get_cmap('ocean'),
+        lc = LineCollection(segments, cmap=plt.get_cmap('autumn'),
                             norm=plt.Normalize(-20., 60000.))
         lc.set_array(alt)
-        lc.set_linewidth(1.0)
+        lc.set_linewidth(0.2)
 
         plt.gca().add_collection(lc)
 
