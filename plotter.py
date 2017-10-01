@@ -16,29 +16,55 @@ map = Basemap(projection='cyl',resolution='c')
 map.drawmapboundary(fill_color='#424242')
 map.fillcontinents(color='#636363')
 
+def get_sublist(plots):
+    current = []
+    plots = iter(plots)
+    try:
+        while True:
+            try:
+                current.append(next(plots))
+                if ((abs(current[-1][0]) - abs(current[-2][0]) > 0.5) or
+                   (abs(current[-1][1]) - abs(current[-2][1]) > 0.5)):
+                    last = current.pop()
+                    yield current.copy()
+                    current = [last]
+                else:
+                    pass
+            except IndexError:
+                pass
+    except StopIteration:
+        yield current
+
 # Clear any empty data which will cause the program to crash
 cursor.execute('DELETE FROM plots WHERE lat IS NULL OR lat = \'\';')
 db.commit()
 
 cursor.execute('SELECT DISTINCT vid FROM plots;')
 vids = [x[0] for x in cursor.fetchall()]
+total_vids = len(vids)
+i = 0
 
 for vid in vids:
+    i += 1
     cursor.execute('SELECT lat, lon, alt FROM plots WHERE vid = ?;', (vid,))
+    data = cursor.fetchall()
+    data = list(get_sublist(data))
 
-    lat, lon, alt = zip(*cursor.fetchall())
-    alt = np.array(alt)
+    for seg in data:
+        lat, lon, alt = zip(*seg)
+        alt = np.array(alt)
 
-    if (np.all(np.diff(lat) < 0.5)) and (np.all(np.diff(lat) < 0.5)):
         points = np.array([lon, lat]).T.reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
         lc = LineCollection(segments, cmap=plt.get_cmap('ocean'),
-                            norm=plt.Normalize(0, 60000))
+                            norm=plt.Normalize(-20., 60000.))
         lc.set_array(alt)
-        lc.set_linewidth(1)
+        lc.set_linewidth(0.1)
 
         plt.gca().add_collection(lc)
+
+    print(f'{i}/{total_vids}')
 
 plt.show()
 db.close()
