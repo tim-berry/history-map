@@ -3,7 +3,6 @@ import os
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 from matplotlib.collections import LineCollection
 
 # Database setup
@@ -11,13 +10,25 @@ dir_path = os.path.dirname(os.path.abspath(__file__))
 db = sqlite3.connect(os.path.join(dir_path, 'data.db'))
 cursor = db.cursor()
 
-# Map setup
-map = Basemap(llcrnrlon=-11.5,llcrnrlat=35,urcrnrlon=21.5,urcrnrlat=59.5,projection='cyl',resolution='c')
+'''
+Map setup 
+llcrnrlat,llcrnrlon,urcrnrlat,urcrnrlon are the lat/lon values of
+the lower left and upper right corners of the map.
+'''
+map = Basemap(projection='cyl',
+              resolution='c',
+              llcrnrlat=-90,
+              urcrnrlat=90,
+              llcrnrlon=-180,
+              urcrnrlon=180)
 map.arcgisimage(service='ESRI_Imagery_World_2D', xpixels = 2000, verbose= True)
-#map.drawmapboundary(fill_color='#424242')
-#map.fillcontinents(color='#636363')
 
 def get_sublist(plots):
+    '''
+    "I'm sorry but that code is monstrous and out of control. It needs to be
+    exterminated."
+    There are probably better ways to solve this.
+    '''
     current = []
     plots = iter(plots)
     try:
@@ -59,9 +70,10 @@ for vid in vids:
         lc = LineCollection(segments, cmap=plt.get_cmap('autumn'),
                             norm=plt.Normalize(-20., 60000.))
         lc.set_array(alt)
-        lc.set_linewidth(0.2)
+        lc.set_linewidth(0.1)
 
         plt.gca().add_collection(lc)
 
 db.close()
-plt.show()
+
+plt.savefig('output.png', bbox_inches='tight', pad_inches=0, dpi=400)
